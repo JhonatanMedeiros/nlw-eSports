@@ -5,9 +5,11 @@
     "rootDir": "./src",
     "moduleResolution": "node",
     "outDir": "./build",
+    "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "lib": ["esnext"],
     "skipLibCheck": true
   }
 }
