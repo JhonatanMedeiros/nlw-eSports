@@ -6,7 +6,7 @@ class AdsController {
 	static async getDiscord(request: Request<{ id: string }>, response: Response) {
 		const adId = request.params.id;
 
-		const ad = await prisma.ad.findUniqueOrThrow({
+		const ad = await prisma.ad.findUnique({
 			select: {
 				discord: true,
 			},
@@ -15,9 +15,15 @@ class AdsController {
 			}
 		});
 
-		return response.json({
-			discord: ad.discord,
-		})
+		if (!ad) {
+			return response
+				.json({ message: 'Ad not found'})
+				.status(404);
+		}
+
+		return response
+			.json({ discord: ad.discord })
+			.status(200);
 	}
 }
 
