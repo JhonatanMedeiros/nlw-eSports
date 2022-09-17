@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { Check, GameController } from 'phosphor-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Checkbox from '@radix-ui/react-checkbox';
@@ -16,30 +17,32 @@ interface CreateAdModalProps {
 
 interface Ad {
 	game: string;
-	yearsPlaying: string;
+	name: string;
+	yearsPlaying: string | number;
+	discord: string;
+	weekDays: string | number[];
+	hourStart: string;
+	hourEnd: string;
+	useVoiceChannel: boolean;
 }
 
 export const CreateAdModal = ({ games }: CreateAdModalProps) => {
 	const [weekDays, setWeekDays] = useState<string[]>([]);
 	const [useVoiceChannel, setUseVoiceChannel] = useState<boolean>(false);
+	const { register, handleSubmit, formState: { errors } } = useForm<Ad>();
 
-	const handleOnSubmit = async (event: FormEvent) => {
-		event.preventDefault();
+	const onSubmit: SubmitHandler<Ad> = async (formData) => {
+		console.log(formData);
 
-		const formData = new FormData(event.target as HTMLFormElement);
-		const data = Object.fromEntries(formData) as unknown as Ad;
+		const data: Ad = {
+			...formData,
+			yearsPlaying: Number(formData.yearsPlaying),
+			weekDays: weekDays.map(Number),
+			useVoiceChannel
+		};
 
 		try {
-			await api.post(
-				`/games/${data.game}/ad`,
-				{
-				  ...data,
-				  yearsPlaying: Number(data.yearsPlaying),
-				  weekDays: weekDays.map(Number),
-				  useVoiceChannel
-				}
-			);
-
+			await api.post(`/games/${data.game}/ad`, data);
 			alert('Ad criado com sucesso');
 		} catch (error) {
 			alert('Erro ao criar anúncio');
@@ -55,17 +58,17 @@ export const CreateAdModal = ({ games }: CreateAdModalProps) => {
 
 				<form
 					className="mt-6 flex flex-col gap-4"
-					onSubmit={handleOnSubmit}
+					onSubmit={handleSubmit(onSubmit)}
 				>
 					<div className="flex flex-col gap-2">
 						<label htmlFor="game" className="font-semibold">Qual o game?</label>
 						<select
 							id="game"
-							name="game"
 							className="bg-zinc-900 py-3 px-4 rounded text-sm placeholder:text-zinc-500"
-							defaultValue={'default'}
+							defaultValue={''}
+							{...register('game', { required: true })}
 						>
-							<option disabled value={'default'}>Selecione o game que deseja jogar</option>
+							<option disabled value={''}>Selecione o game que deseja jogar</option>
 							{
 								games?.map((game) => {
 								  return (
@@ -79,16 +82,18 @@ export const CreateAdModal = ({ games }: CreateAdModalProps) => {
 								})
 							}
 						</select>
+						{errors.game && <p className="text-red-700 font-light">Game é obrigatório</p>}
 					</div>
 
 					<div className="flex flex-col gap-2">
 						<label htmlFor="name">Seu nome (ou nickname)</label>
 						<Input
 							id="name"
-							name="name"
 							type="text"
 							placeholder="Como te chamam dentro do game?"
+							{...register('name', { required: true })}
 						/>
+						{errors.name && <p className="text-red-700 font-light">Nome é obrigatório</p>}
 					</div>
 
 					<div className="grid grid-cols-2 gap-6">
@@ -97,17 +102,17 @@ export const CreateAdModal = ({ games }: CreateAdModalProps) => {
 							<Input
 								id="yearsPlaying"
 								type="number"
-								name="yearsPlaying"
 								placeholder="Tudo bem ser ZERO"
+								{...register('yearsPlaying')}
 							/>
 						</div>
 						<div className="flex flex-col gap-2">
 							<label htmlFor="discord">Qual o seu Discord?</label>
 							<Input
 								id="discord"
-								name="discord"
 								type="text"
 								placeholder="Usuário#0000"
+								{...register('discord')}
 							/>
 						</div>
 					</div>
@@ -198,15 +203,15 @@ export const CreateAdModal = ({ games }: CreateAdModalProps) => {
 							<div className="grid grid-cols-2 gap-2">
 								<Input
 									id="hourStart"
-									name="hourStart"
 									type="time"
 									placeholder="De"
+									{...register('hourStart')}
 								></Input>
 								<Input
 									id="hourEnd"
-									name="hourEnd"
 									type="time"
 									placeholder="Até"
+									{...register('hourEnd')}
 								></Input>
 							</div>
 						</div>
