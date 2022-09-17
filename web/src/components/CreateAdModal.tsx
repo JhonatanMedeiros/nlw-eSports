@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent, useState } from 'react';
 import { Check, GameController } from 'phosphor-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Checkbox from '@radix-ui/react-checkbox';
@@ -14,35 +14,37 @@ interface CreateAdModalProps {
 	games?: Game[];
 }
 
+interface Ad {
+	game: string;
+	yearsPlaying: string;
+}
+
 export const CreateAdModal = ({ games }: CreateAdModalProps) => {
-	const [weekDays, setWeekDays] = useState<string[]>([])
-	const [useVoiceChannel, setUseVoiceChannel] = useState<boolean>(false)
+	const [weekDays, setWeekDays] = useState<string[]>([]);
+	const [useVoiceChannel, setUseVoiceChannel] = useState<boolean>(false);
 
 	const handleOnSubmit = async (event: FormEvent) => {
-		event.preventDefault()
+		event.preventDefault();
 
-		const formData = new FormData(event.target as HTMLFormElement)
-		const data = Object.fromEntries(formData)
+		const formData = new FormData(event.target as HTMLFormElement);
+		const data = Object.fromEntries(formData) as unknown as Ad;
 
 		try {
 			await api.post(
 				`/games/${data.game}/ad`,
 				{
-					name: data.name,
-					yearsPlaying: Number(data.yearsPlaying),
-					discord: data.discord,
-					weekDays: weekDays.map(Number),
-					hourStart: data.hourStart,
-					hourEnd: data.hourEnd,
-					useVoiceChannel: useVoiceChannel,
+				  ...data,
+				  yearsPlaying: Number(data.yearsPlaying),
+				  weekDays: weekDays.map(Number),
+				  useVoiceChannel
 				}
-			)
+			);
 
-			alert('Ad criado com sucesso')
+			alert('Ad criado com sucesso');
 		} catch (error) {
-			alert('Erro ao criar anúncio')
+			alert('Erro ao criar anúncio');
 		}
-	}
+	};
 
 	return (
 		<Dialog.Portal>
@@ -65,16 +67,15 @@ export const CreateAdModal = ({ games }: CreateAdModalProps) => {
 						>
 							<option disabled value={'default'}>Selecione o game que deseja jogar</option>
 							{
-								games &&
-								games.map((game) => {
-									return (
+								games?.map((game) => {
+								  return (
 										<option
 											key={game.id}
 											value={game.id}
 										>
 											{ game.title }
 										</option>
-									)
+								  );
 								})
 							}
 						</select>
@@ -215,7 +216,7 @@ export const CreateAdModal = ({ games }: CreateAdModalProps) => {
 						<Checkbox.Root
 							className="w-6 h-6 p-1 rounded bg-zinc-900"
 							onCheckedChange={(checked) => {
-								setUseVoiceChannel(!!checked)
+							  setUseVoiceChannel(!!checked);
 							}}
 						>
 							<Checkbox.CheckboxIndicator>
@@ -244,4 +245,4 @@ export const CreateAdModal = ({ games }: CreateAdModalProps) => {
 			</Dialog.Content>
 		</Dialog.Portal>
 	);
-}
+};

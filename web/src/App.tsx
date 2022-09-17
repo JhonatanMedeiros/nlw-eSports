@@ -15,15 +15,15 @@ export interface Game {
 	bannerUrl: string;
 	_count: {
 		ads: number;
-	}
+	};
 }
 
-function App() {
+function App () {
 	const [games, setGames] = useState<Game[]>([]);
 
 	useEffect(() => {
 		const fetching = async () => {
-			const { data } = await api.get('/games')
+			const { data } = await api.get('/games');
 			setGames(data);
 		};
 		fetching();
@@ -39,14 +39,14 @@ function App() {
 
 			<div className="grid grid-cols-6 gap-6 mt-16">
 				{games.map(game => {
-					return (
+				  return (
 						<GameBanner
 							key={game.id}
 							title={game.title}
 							bannerUrl={game.bannerUrl}
 							adsCount={game._count.ads}
 						/>
-					)
+				  );
 				})}
 			</div>
 
@@ -55,7 +55,7 @@ function App() {
 				<CreateAdModal games={games} />
 			</Dialog.Root>
 		</div>
-	)
+	);
 }
 
-export default App
+export default App;
