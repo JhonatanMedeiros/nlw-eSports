@@ -28,9 +28,14 @@ class GamesController {
 				_count: {
 					select: {
 						ads: true,
-					}
+					},
 				}
-			}
+			},
+			orderBy: [
+				{
+					title: 'asc'
+				},
+			]
 		});
 		return response.json(games);
 	}
