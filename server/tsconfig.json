@@ -4,7 +4,7 @@
     "module": "CommonJS",
     "rootDir": "./src",
     "moduleResolution": "node",
-    "outDir": "./build",
+    "outDir": "./dist",
     "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

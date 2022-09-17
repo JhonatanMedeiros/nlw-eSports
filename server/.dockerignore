@@ -1,0 +1,17 @@
+.dockerignore
+.DS_Store
+.editorconfig
+.eslintcache
+.eslintrc*
+.git
+.vscode
+*.log
+*docker-compose*
+*Dockerfile*
+.docker
+dist
+LICENSE
+logs
+node_modules
+npm-debug.log
+README.md
