@@ -1,100 +1,52 @@
-import express from 'express';
-import cors from 'cors';
-import { PrismaClient } from '@prisma/client'
+// setup dotenv
+import './env';
 
-import { convertHourStringToMinutes } from './utils/convert-hour-string-to-minutes';
-import { convertMinutesToHourString } from './utils/convert-minutes-to-hour-string';
+import http from 'http';
 
-const app = express();
+import app from './app';
+import * as serverHandlers from './serverHandlers';
+import Logger from './logger';
 
-app.use(express.json());
-app.use(cors());
+import gracefulShutdown from './utils/graceful-shutdown';
 
-const prisma = new PrismaClient({
-	log: ['query'],
+const server = http.createServer(app);
+
+const PORT = app.get('port');
+
+/**
+ * Binds and listens for connections on the specified host
+ */
+server.listen(PORT);
+
+/**
+ * Server Events
+ */
+server.on('error', (error: Error) => serverHandlers.onError(error, PORT));
+server.on('listening', () => serverHandlers.onListening(PORT));
+server.on('close', () => serverHandlers.onClose());
+
+/**
+ * Nodejs Events
+ */
+process.on('uncaughtException', (error, origin) => {
+	Logger.error(`App exiting due to an uncaught exception: ${error}`);
+	process.exit(1);
 });
 
-app.get('/games', async (request, response) => {
-
-	const games = await prisma.game.findMany({
-		include: {
-			_count: {
-				select: {
-					ads: true,
-				}
-			}
-		}
-	});
-
-	return response.json(games);
+process.on('unhandledRejection', (reason, promise) => {
+	Logger.error(`App exiting due to an unhandled promise: ${promise} and reason: ${reason}`);
+	// let's throw the error and let the uncaughtException handle below handle it
+	throw reason;
 });
 
-app.post('/games/:id/ads', async (request, response) => {
-	const gameId = request.params.id;
-	const body: any = request.body;
-
-	const ad = await prisma.ad.create({
-		data: {
-			gameId,
-			name: body.name,
-			yearsPlaying: body.yearsPlaying,
-			discord: body.discord,
-			weekDays: body.weekDays.join(','),
-			hourStart: convertHourStringToMinutes(body.hourStart),
-			hourEnd: convertHourStringToMinutes(body.hourEnd),
-			useVoiceChannel: body.useVoiceChannel,
-		},
-	})
-
-	return response.status(201).json(ad);
+// quit on ctrl+c when running docker in terminal
+process.on('SIGINT', async () => {
+	console.info('Got SIGINT (aka ctrl+c in docker). Graceful shutdown', new Date().toISOString());
+	await gracefulShutdown(server);
 });
 
-app.get('/games/:id/ads', async (request, response) => {
-	const gameId = request.params.id;
-
-	const ads = await prisma.ad.findMany({
-		select: {
-			id: true,
-			name: true,
-			weekDays: true,
-			useVoiceChannel: true,
-			yearsPlaying: true,
-			hourStart: true,
-			hourEnd: true,
-		},
-		where: {
-			gameId,
-		},
-		orderBy: {
-			createdAt: 'desc'
-		}
-	})
-
-	return response.json(ads.map(ad => {
-		return {
-			...ad,
-			weekDays: ad.weekDays.split(','),
-			hourStart: convertMinutesToHourString(ad.hourStart),
-			hourEnd: convertMinutesToHourString(ad.hourEnd),
-		}
-	}));
+// quit properly on docker stop
+process.on('SIGTERM', async () => {
+	console.log('Got SIGTERM (docker container stop).Graceful shutdown', new Date().toISOString());
+	await gracefulShutdown(server);
 });
-
-app.get('/ads/:id/discord', async (request, response) => {
-	const adId = request.params.id;
-
-	const ad = await prisma.ad.findUniqueOrThrow({
-		select: {
-			discord: true,
-		},
-		where: {
-			id: adId,
-		}
-	});
-
-	return response.json({
-		discord: ad.discord,
-	})
-});
-
-app.listen(3333, () => console.log(`🚀 Server ready at: http://localhost:3333`));
