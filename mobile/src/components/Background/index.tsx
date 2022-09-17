@@ -5,17 +5,17 @@ import backgroundImg from '../../assets/background-galaxy.png';
 import { styles } from './styles';
 
 interface Props {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }
 
-export function Background({ children }: Props) {
-  return (
-    <ImageBackground
-      source={backgroundImg}
-      defaultSource={backgroundImg}
-      style={styles.container}
-    >
-      {children}
-    </ImageBackground>
-  );
+export function Background({children}: Props) {
+	return (
+		<ImageBackground
+			source={backgroundImg}
+			defaultSource={backgroundImg}
+			style={styles.container}
+		>
+			{children}
+		</ImageBackground>
+	);
 }
