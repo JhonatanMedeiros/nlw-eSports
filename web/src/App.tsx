@@ -3,8 +3,8 @@ import * as Dialog from '@radix-ui/react-dialog';
 
 import api from './services/api';
 
+import { GamesBanner } from './components/GamesBanner';
 import { CreateAdBanner } from './components/CreateAdBanner';
-import { GameBanner } from './components/GameBanner';
 import { CreateAdModal } from './components/CreateAdModal';
 
 import logoImg from './assets/logo-nlw-esports.svg';
@@ -31,24 +31,15 @@ function App () {
 	}, []);
 
 	return (
-		<div className="max-w-[1344px] mx-auto flex flex-col items-center my-20">
+		<div className="container mx-auto flex flex-col items-center p-5">
 			<img src={logoImg} alt=""/>
 
-			<h1 className="text-6xl text-white font-black mt-20">
+			<h1 className="text-4xl md:text-6xl text-white font-black mt-20">
 				Seu <span className="text-transparent bg-nlw-gradient bg-clip-text">duo</span> está aqui.
 			</h1>
 
-			<div className="grid grid-cols-6 gap-6 mt-16">
-				{games.map(game => {
-				  return (
-						<GameBanner
-							key={game.id}
-							title={game.title}
-							bannerUrl={game.bannerUrl}
-							adsCount={game._count.ads}
-						/>
-				  );
-				})}
+			<div className="grid grid-cols-1 sm:grid-cols-6 gap-6 mt-16 w-full sm:w-auto">
+				<GamesBanner games={games} />
 			</div>
 
 			<Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
