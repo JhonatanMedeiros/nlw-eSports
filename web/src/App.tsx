@@ -19,6 +19,7 @@ export interface Game {
 }
 
 function App () {
+	const [dialogOpen, setDialogOpen] = useState(false);
 	const [games, setGames] = useState<Game[]>([]);
 
 	useEffect(() => {
@@ -50,9 +51,12 @@ function App () {
 				})}
 			</div>
 
-			<Dialog.Root>
+			<Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
 				<CreateAdBanner/>
-				<CreateAdModal games={games} />
+				<CreateAdModal
+					games={games}
+					onCloseDialog={() => setDialogOpen(false)}
+				/>
 			</Dialog.Root>
 		</div>
 	);
