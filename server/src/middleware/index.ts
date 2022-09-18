@@ -16,7 +16,9 @@ const limiter = rateLimit({
 export function configure(app: express.Application): void {
 
 	// providing a Connect/Express middleware that can be used to enable CORS with various options
-	app.use(cors());
+	app.use(cors({
+		origin: ['https://nlw-e-sports-two.vercel.app', 'https://nlw-e-sports-git-master-jhonatanmedeiros.vercel.app/']
+	}));
 
 	// apply rate limit to all requests
 	app.use(limiter);
