@@ -24,10 +24,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#121214"
-      }
+      },
+      "package": "com.jhonatanmedeiros.nlw_esports"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b71b80a3-aad2-45f2-93f4-3f4136bdacfb"
+      }
     }
   }
 }
